@@ -14,7 +14,7 @@ const gameStatus = {
   default: 'Win for player2'
 };
 
-const tempScoreValues = {
+const scoreTypes = {
   0: 'Love',
   1: 'Fifteen',
   2: 'Thirty',
@@ -41,7 +41,7 @@ class TennisGame1 {
   }
 
   getGameStatus(minusResult) {
-    const foundKey = Object.keys(gameStatus).find((entrie) => entrie == minusResult);
+    const foundKey = Object.keys(gameStatus).find((key) => key == minusResult);
 
     if (foundKey) {
       return gameStatus[foundKey];
@@ -49,39 +49,43 @@ class TennisGame1 {
     return (minusResult >= 2) ? gameStatus.overTwo : gameStatus.default;
   }
 
-  wonPoint(playerName) {
-    const isFirstPlayer = (playerName === 'player1');
-
-    isFirstPlayer ? this.increaseScore(this.firstPlayer) : this.increaseScore(this.secondPlayer);
-  }
-
-  getScore() {
+  getOtherwiseCaseScore() {
     let score = '';
     let tempScore = 0;
 
+    for (let pos = 1; pos < 3; pos++) {
+      if (pos === 1) tempScore = this.firstPlayer.score;
+      else {
+        score += '-';
+        tempScore = this.secondPlayer.score;
+      }
+      score += scoreTypes[tempScore];
+    }
+    return score;
+  }
+
+  wonPoint(playerName) {
+    const isFirstPlayer = (playerName === 'player1');
+    this.getOtherwiseCaseScore();
+    isFirstPlayer ? this.increaseScore(this.firstPlayer) : this.increaseScore(this.secondPlayer);
+  }
+
+  computeScore() {
     const firstPlayerScore = this.firstPlayer.score;
     const secondPlayerScore = this.secondPlayer.score;
 
     const isDraw = firstPlayerScore === secondPlayerScore;
     const isSomeoneScoreAbove4 = firstPlayerScore >= 4 || secondPlayerScore >= 4;
+    const drawCaseScore = (firstPlayerScore > 2) ? scoreTable.default : scoreTable[firstPlayerScore];
 
-    if (isDraw) {
-      score = (firstPlayerScore > 2) ? scoreTable.default : scoreTable[firstPlayerScore];
-    } else if (isSomeoneScoreAbove4) {
+    return (isDraw) ? drawCaseScore
+      : (isSomeoneScoreAbove4) ? this.getGameStatus(firstPlayerScore - secondPlayerScore)
+        : this.getOtherwiseCaseScore();
+  }
 
-      const minusResult = firstPlayerScore - secondPlayerScore;
-      score = this.getGameStatus(minusResult);
+  getScore() {
+    const score = this.computeScore();
 
-    } else {
-      for (let i = 1; i < 3; i++) {
-        if (i === 1) tempScore = firstPlayerScore;
-        else {
-          score += '-';
-          tempScore = secondPlayerScore;
-        }
-        score += tempScoreValues[tempScore];
-      }
-    }
     return score;
   }
 
