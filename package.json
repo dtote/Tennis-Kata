@@ -6,6 +6,7 @@
   "license": "MIT",
   "author": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "test-watch": "jest --watch"
